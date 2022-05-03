@@ -1,9 +1,5 @@
 import requests as req
 from bs4 import BeautifulSoup
-import pickle
-
-with open('nonUsefulWikiLinksTexts.pickle', 'rb') as f:
-    nonUsefulLinksTexts = pickle.load(f)
 
 wiki_url = "https://ru.wikipedia.org"
 url = "https://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D1%82%D0%B5%D0%B3%D0%BE%D1%80%D0%B8%D1%8F:%D0%9A%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D1%8B_%D0%BF%D0%BE_%D1%85%D1%83%D0%B4%D0%BE%D0%B6%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC"
@@ -30,7 +26,8 @@ for artist_link in links_slice:
             paintings_FULLurl = wiki_url + paintingListLink['href']
             paintingsLinks = reqParseFind(paintings_FULLurl, 'a')
             for paintingLink in paintingsLinks:
-                if paintingLink.text not in nonUsefulLinksTexts:
-                    print(paintingLink.text)
+                if paintingLink['href'].find("/wiki/") == -1:
+                    continue
+                print(paintingLink.text)
         print()
     break
