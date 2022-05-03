@@ -1,5 +1,6 @@
 import requests as req
 from bs4 import BeautifulSoup
+from PIL import Image
 import re
 
 #object_methods = [method_name for method_name in dir(WikiExtractor)
@@ -61,6 +62,15 @@ for artist_link in links_slice:
                 text = reqParseFind(painting_FULLurl, 'p')
                 text = [cleanhtml(p.text) for p in text]
                 imgs = reqParseFind(painting_FULLurl, 'img')
-                print(text[:5])
+                img_url = 'https:' + imgs[0]['src']
+                resp = req.get(img_url, stream=True)
+                if len(resp.content) > 3000:
+                    im_name = imgs[0]['alt'].replace('.', '').replace(' ', '')
+                    with open(f'{im_name}.jpg', 'wb') as f:
+                        f.write(resp.content)
+
+                #print(img_url, '\n', len(resp.content))
+                #print(imgs[0]['src'][2:])
+                #print([img['src'] for img in imgs[0]])
         print()
     break
