@@ -11,6 +11,12 @@ def reqParseFind(url, findTag):
     links = soup.find(id="bodyContent").findAll(findTag)
     return links
 
+def indexByWikiObjTextKey(list, key):
+    for index, item in enumerate(list):
+        if item.text == key:
+            break
+    return index
+
 links = reqParseFind(url, 'a')
 links_slice = links[10:15]
 
@@ -25,9 +31,15 @@ for artist_link in links_slice:
             #print(painting_link)
             paintings_FULLurl = wiki_url + paintingListLink['href']
             paintingsLinks = reqParseFind(paintings_FULLurl, 'a')
+            
+            categ_index = indexByWikiObjTextKey(paintingsLinks, 'Категории')
+            paintingsLinks = paintingsLinks[:categ_index]
+            filteredPaintingLinks = []
             for paintingLink in paintingsLinks:
-                if paintingLink['href'].find("/wiki/") == -1:
-                    continue
-                print(paintingLink.text)
+                if paintingLink['href'].find("/wiki/") != -1\
+                    and "Список" not in paintingLink.text and "Медиафайлы" not in paintingLink.text:
+                    filteredPaintingLinks.append(paintingLink)
+            for link in filteredPaintingLinks[:]:
+                print(link.text)
         print()
     break
