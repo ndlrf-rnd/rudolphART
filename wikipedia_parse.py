@@ -1,9 +1,22 @@
 import requests as req
 from bs4 import BeautifulSoup
+import re
 
-wiki_url = "https://ru.wikipedia.org"
-url = "https://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D1%82%D0%B5%D0%B3%D0%BE%D1%80%D0%B8%D1%8F:%D0%9A%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D1%8B_%D0%BF%D0%BE_%D1%85%D1%83%D0%B4%D0%BE%D0%B6%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC"
-url = "https://ru.wikipedia.org/w/index.php?title=%D0%9A%D0%B0%D1%82%D0%B5%D0%B3%D0%BE%D1%80%D0%B8%D1%8F:%D0%9A%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D1%8B_%D0%BF%D0%BE_%D1%85%D1%83%D0%B4%D0%BE%D0%B6%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC&subcatfrom=%D0%9A%D0%BB%D0%B5%D0%B5%2C+%D0%9F%D0%B0%D1%83%D0%BB%D1%8C%0A%D0%9A%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D1%8B+%D0%9F%D0%B0%D1%83%D0%BB%D1%8F+%D0%9A%D0%BB%D0%B5%D0%B5#mw-subcategories"
+#object_methods = [method_name for method_name in dir(WikiExtractor)
+#                  if callable(getattr(WikiExtractor, method_name))]
+#print(object_methods)
+#WikiExtractor.clean
+
+def cleanhtml(raw_html):
+    cleanr = re.compile('<.*?>')
+    cleantext = re.sub(cleanr, '', raw_html)
+
+    cleanr = re.compile('\[.*?\]')
+    cleantext = re.sub(cleanr, '', cleantext)
+
+    cleantext = cleantext.replace(u'\xa0', u' ')
+    cleantext = cleantext.replace('\n', '')
+    return cleantext
 
 def reqParseFind(url, findTag):
     resp = req.get(url)
@@ -16,6 +29,10 @@ def indexByWikiObjTextKey(list, key):
         if item.text == key:
             break
     return index
+
+wiki_url = "https://ru.wikipedia.org"
+url = "https://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D1%82%D0%B5%D0%B3%D0%BE%D1%80%D0%B8%D1%8F:%D0%9A%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D1%8B_%D0%BF%D0%BE_%D1%85%D1%83%D0%B4%D0%BE%D0%B6%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC"
+url = "https://ru.wikipedia.org/w/index.php?title=%D0%9A%D0%B0%D1%82%D0%B5%D0%B3%D0%BE%D1%80%D0%B8%D1%8F:%D0%9A%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D1%8B_%D0%BF%D0%BE_%D1%85%D1%83%D0%B4%D0%BE%D0%B6%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC&subcatfrom=%D0%9A%D0%BB%D0%B5%D0%B5%2C+%D0%9F%D0%B0%D1%83%D0%BB%D1%8C%0A%D0%9A%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D1%8B+%D0%9F%D0%B0%D1%83%D0%BB%D1%8F+%D0%9A%D0%BB%D0%B5%D0%B5#mw-subcategories"
 
 links = reqParseFind(url, 'a')
 links_slice = links[10:15]
@@ -39,7 +56,11 @@ for artist_link in links_slice:
                 if paintingLink['href'].find("/wiki/") != -1\
                     and "Список" not in paintingLink.text and "Медиафайлы" not in paintingLink.text:
                     filteredPaintingLinks.append(paintingLink)
-            for link in filteredPaintingLinks[:]:
-                print(link.text)
+            for paintingLink in filteredPaintingLinks:
+                painting_FULLurl = wiki_url + paintingLink['href']
+                text = reqParseFind(painting_FULLurl, 'p')
+                text = [cleanhtml(p.text) for p in text]
+                imgs = reqParseFind(painting_FULLurl, 'img')
+                print(text[:5])
         print()
     break
