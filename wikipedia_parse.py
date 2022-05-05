@@ -1,36 +1,10 @@
-import requests as req
-from bs4 import BeautifulSoup
-from PIL import Image
 import pandas as pd
-import re
+from utils import *
 
 #object_methods = [method_name for method_name in dir(WikiExtractor)
 #                  if callable(getattr(WikiExtractor, method_name))]
 #print(object_methods)
 #WikiExtractor.clean
-
-def cleanhtml(raw_html):
-    cleanr = re.compile('<.*?>')
-    cleantext = re.sub(cleanr, '', raw_html)
-
-    cleanr = re.compile('\[.*?\]')
-    cleantext = re.sub(cleanr, '', cleantext)
-
-    cleantext = cleantext.replace(u'\xa0', u' ')
-    cleantext = cleantext.replace('\n', '')
-    return cleantext
-
-def reqParseFind(url, findTag):
-    resp = req.get(url)
-    soup = BeautifulSoup(resp.text, 'html.parser')
-    links = soup.find(id="bodyContent").findAll(findTag)
-    return links
-
-def indexByWikiObjTextKey(list, key):
-    for index, item in enumerate(list):
-        if item.text == key:
-            break
-    return index
 
 wiki_url = "https://ru.wikipedia.org"
 #url = "https://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D1%82%D0%B5%D0%B3%D0%BE%D1%80%D0%B8%D1%8F:%D0%9A%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D1%8B_%D0%BF%D0%BE_%D1%85%D1%83%D0%B4%D0%BE%D0%B6%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC"
