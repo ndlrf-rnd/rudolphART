@@ -13,10 +13,13 @@ def cleanhtml(raw_html):
     cleantext = cleantext.replace('\n', '')
     return cleantext
 
-def reqParseFind(url, findTag):
+def reqParseFind(url, findTag, source="wikipedia"):
     resp = req.get(url)
     soup = BeautifulSoup(resp.text, 'html.parser')
-    links = soup.find(id="bodyContent").findAll(findTag)
+    if source == "wikipedia":
+        links = soup.find(id="bodyContent").findAll(findTag)
+    elif source == "opisanie-kartin":
+        links = soup.find(findTag, class_ = "entry-content").findAll('p')
     return links
 
 def indexByWikiObjTextKey(list, key):

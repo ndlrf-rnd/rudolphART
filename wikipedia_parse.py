@@ -50,7 +50,7 @@ for artist_link in links_slice:
 
                 if len(resp.content) > 3000:
                     im_name = imgs[0]['alt'].replace('.', '').replace(' ', '')
-                    im_path = f'imgs/{im_name}.jpg'
+                    im_path = f'wiki_imgs/{im_name}.jpg'
                     with open(im_path, 'wb') as f:
                         f.write(resp.content)
 
