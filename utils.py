@@ -20,6 +20,10 @@ def reqParseFind(url, findTag, source="wikipedia"):
         links = soup.find(id="bodyContent").findAll(findTag)
     elif source == "opisanie-kartin":
         links = soup.find(findTag, class_ = "entry-content").findAll('p')
+    elif source == "cvetamira":
+        links = soup.find(findTag, class_ = "center justified")
+    else:
+        links = soup.find(findTag)
     return links
 
 def indexByWikiObjTextKey(list, key):
