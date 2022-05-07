@@ -23,31 +23,39 @@ doc = xmltodict.parse(resp.text)
 urls = doc['urlset']['url']
 
 #json = json.dumps(doc)
-descriptions = []
+im_descriptions = []
 im_names = []
 count = 0
 for url in urls:
-    text_parts = reqParseFind(url['loc'], 'div', "opisanie-kartin")
+    try:
+        text_parts = reqParseFind(url['loc'], 'div', "opisanie-kartin")
+    except:
+        continue
     description = ''
     for p in text_parts:
         description += p.text
         description += '\n'
-        print(p.text)
-    im_names.append(description)
-    print(url['image:image'])
     try:
         img_url = url['image:image']['image:loc']
         im_name = url['image:image']['image:title']
     except:
-        img_url = url['image:image'][0]['image:loc']
-        im_name = url['image:image'][0]['image:title']
+        try:
+            img_url = url['image:image'][0]['image:loc']
+            im_name = url['image:image'][0]['image:title']
+        except:
+            continue
+        continue
+    print()
+    im_descriptions.append(description)
+    print(url['image:image'])
+    im_names.append(im_name)
     resp = req.get(img_url, stream=True)
     im_path = f'opisanie_kartin_images/{im_name}.jpg'
     with open(im_path, 'wb') as f:
         f.write(resp.content)
     if (count + 1) % 100 == 0:
         data = {'im_name': im_names, 'description': im_descriptions}
-        pd.DataFrame.from_dict(data).to_csv('wikiArtistsImDescr.csv', index=False)
+        pd.DataFrame.from_dict(data).to_csv('opisKartinArtistsImDescr.csv', index=False)
         print(f'saved {count} iteration')
     count += 1
     print()
