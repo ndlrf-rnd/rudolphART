@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from PIL import Image
 import pandas as pd
 import re
+from time import sleep
 
 #object_methods = [method_name for method_name in dir(WikiExtractor)
 #                  if callable(getattr(WikiExtractor, method_name))]
@@ -69,13 +70,20 @@ for artist_link in links_slice:
             for paintingLink in filteredPaintingLinks:
                 painting_FULLurl = wiki_url + paintingLink['href']
                 text = reqParseFind(painting_FULLurl, 'p')
+                sleep(0.3)
                 text = ' '.join([cleanhtml(p.text) for p in text[:6]])
                 imgs = reqParseFind(painting_FULLurl, 'img')
+                sleep(0.3)
                 img_url = 'https:' + imgs[0]['src']
                 resp = req.get(img_url, stream=True)
 
-                if len(resp.content) > 3000:
-                    im_name = imgs[0]['alt'].replace('.', '').replace(' ', '')
+                print()
+                print(resp)
+                print(img_url)
+                print()
+
+                if len(resp.content) > 2000:
+                    im_name = imgs[0]['alt'].replace('.', '').replace(' ', '')[:50]
                     im_path = f'imgs/{im_name}.jpg'
                     with open(im_path, 'wb') as f:
                         f.write(resp.content)
@@ -87,6 +95,7 @@ for artist_link in links_slice:
                         pd.DataFrame.from_dict(data).to_csv('wikiArtistsImDescr.csv', index=False)
                         print(f'saved {count} iteration')
                     count += 1
+                sleep(0.3)
 
                 #print(img_url, '\n', len(resp.content))
                 #print(imgs[0]['src'][2:])
