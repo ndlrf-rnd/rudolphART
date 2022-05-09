@@ -2,6 +2,8 @@ import pandas as pd
 import re
 from time import sleep
 from utils import *
+import os
+from urllib.request import Request, urlopen
 
 #object_methods = [method_name for method_name in dir(WikiExtractor)
 #                  if callable(getattr(WikiExtractor, method_name))]
@@ -45,33 +47,36 @@ for artist_link in links_slice:
             for paintingLink in filteredPaintingLinks:
                 painting_FULLurl = wiki_url + paintingLink['href']
                 text = reqParseFind(painting_FULLurl, 'p')
-                sleep(0.3)
                 text = ' '.join([cleanhtml(p.text) for p in text[:6]])
                 imgs = reqParseFind(painting_FULLurl, 'img')
-                sleep(0.3)
                 img_url = 'https:' + imgs[0]['src']
-                resp = req.get(img_url, stream=True)
+                #resp = req.get(img_url, stream=True)
 
-                print()
-                print(resp)
-                print(img_url)
-                print()
+                req = Request(img_url, headers={'User-Agent': 'Mozilla/5.0'})
+                webpage = urlopen(req).read()
 
-                if len(resp.content) > 2000:
+                #print()
+                #print(dir(webpage))
+                #print(img_url)
+                #print(len(webpage))
+                #print()
+
+                if len(webpage) > 2000:
                     im_name = imgs[0]['alt'].replace('.', '').replace(' ', '')[:50]
-                    im_path = f'imgs/{im_name}.jpg'
-                    with open(im_path, 'wb') as f:
-                        f.write(resp.content)
+                    im_path = f'wiki_imgs/{im_name}.jpg'
 
                     im_descriptions.append(text)
                     im_names.append(im_name)
+                    if os.path.isfile(im_path):
+                        continue
+                    with open(im_path, 'wb') as f:
+                        f.write(webpage)
                     if (count + 1) % 100 == 0:
                         data = {'im_name': im_names, 'description': im_descriptions}
                         pd.DataFrame.from_dict(data).to_csv('wikiArtistsImDescr.csv', index=False)
                         print(f'saved {count} iteration')
                     count += 1
-                sleep(0.3)
 
-                #print(img_url, '\n', len(resp.content))
+                #print(img_url, '\n', len(webpage))
                 #print(imgs[0]['src'][2:])
                 #print([img['src'] for img in imgs[0]])
